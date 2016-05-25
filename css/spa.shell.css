@@ -4,7 +4,7 @@
 */
 .spa-shell-head,.spa-shell-head-logo,.spa-shell-head-acct,
 .spa-shell-head-search,.spa-shell-main,.spa-shell-main-nav,
-.spa-shell-main-content,.spa-shell-foot,.spa-shell-chat,.spa-shell-modal{
+.spa-shell-main-content,.spa-shell-foot,.spa-shell-modal{
 	position:absolute;
 }
 .spa-shell-head {
@@ -66,14 +66,6 @@
 	right:0;
 	height:40px;
 }
-.spa-shell-chat {
-	bottom:0;
-	right:0;
-	width:300px;
-	height:15px;
-	background:red;
-	z-index: 1;
-}
 .spa-shell-modal {
 	margin-top: -200px;
 	margin-left: -200px;
@@ -85,4 +77,5 @@
 	border-radius: 3px;
 	z-index: 2;
 	z-index: 1;
+	display: none;
 }
