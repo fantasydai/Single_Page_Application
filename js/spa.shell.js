@@ -3,12 +3,16 @@
 *Shell module for SPA
 */
 spa.shell=(function () {
+	'use strict';
 	//----------------Begin Module Scope Variables----------------
 	//把静态配置值放在configMap变量中
 	var configMap= {
 		main_html:String()
 			     +'<div class="spa-shell-head">'
-			     	+'<div class="spa-shell-head-logo"></div>'
+			     	+'<div class="spa-shell-head-logo">'
+			     		+'<h1>SPA</h1>'
+			     		+'<p>javascript end to end</p>'
+			     	+ '</div>'
 			     	+'<div class="spa-shell-head-acct"></div>'
 			     	+'<div class="spa-shell-head-search"></div>'
 			     +'</div>'
@@ -44,6 +48,7 @@ spa.shell=(function () {
 	setChatAnchor,
 	copyAnchorMap,
 	changeAnchorPart,
+	onTapAcct,onLogin,onLogout, //声明onTapAcct,onLogin和onLogout事件处理程序
 	onHashchange;
 	//------------------------End Module Scope Variables------------------------------
 
@@ -58,7 +63,9 @@ spa.shell=(function () {
 	setJqueryMap=function () {
 		var $container=stateMap.$container;
 		jqueryMap={
-			$container:$container,
+			$container : $container,
+			$acct          : $container.find('.spa-shell-head-acct'),
+			$nav           : $container.find('.spa-shell-main-nav')
 		};
 	};
 	/*
@@ -180,6 +187,32 @@ spa.shell=(function () {
 		}
 		return false;
 	};
+
+	//添加onTapAcct方法，当点击账户元素时，如果用户名是匿名的，则提示输入用户名，
+	//然后调用spa.model.people.login(<username>)方法，如果用户已经登录，则调用
+	//spa.model.people.logout()方法
+	onTapAcct = function (event) {
+		var acct_text , user_name , user = spa.model.people.get_user();
+		if(user.get_is_anon()){
+			user_name = prompt('please sign-in');
+			spa.model.people.login(user_name);
+			jqueryMap.$acct.text('...processing...');
+		} else {
+			spa.model.people.logout();
+		}
+		return false;
+	};
+
+	//添加onLogin和onLogout事件处理程序，这会更新用户区，onLogin把文字‘please sign-in’替换为用户名，
+	//用户名由login_user对象提供，该对象由spa-login事件发布。onLogout把文字恢复成'please sign-in'。
+	onLogin = function (event,login_user) {
+		jqueryMap.$acct.text(login_user.name);
+	};
+
+	onLogout = function (event,logout_user) {
+		jqueryMap.$acct.text('Please sign-in');
+	};
+
 	//--------------------------End Event Handles--------------------------------------
 
 	//--------------------------Begin Callbacks-----------------------------------
@@ -207,6 +240,13 @@ spa.shell=(function () {
 		spa.chat.initModule(jqueryMap.$container);
 		$(window).bind('hashchange',onHashchange).
 		bind('resize',onResize).trigger('hashchange');
+
+		//让jquery集合container分别订阅spa-login和spa-logout事件对于的处理程序
+		$.gevent.subscribe ($container,'spa-login',onLogin);
+		$.gevent.subscribe ($container,'spa-logout',onLogout);
+
+		//初始化用户区文字，绑定鼠标点击事件处理程序
+		jqueryMap.$acct.text('Please sign-in').bind('utap',onTapAcct);
 	};
 	return {initModule:initModule};
 	//-------------------------End Public Method-------------------------------------
